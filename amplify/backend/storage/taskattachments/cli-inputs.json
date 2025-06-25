@@ -1,0 +1,10 @@
+{
+  "resourceName": "taskattachments",
+  "policyUUID": "a1b2c3d4",
+  "bucketName": "studenttaskmanager-attachments",
+  "storageAccess": "authAndGuest",
+  "guestAccess": ["READ"],
+  "authAccess": ["CREATE_AND_UPDATE", "READ", "DELETE"],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}

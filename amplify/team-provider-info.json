@@ -1,0 +1,25 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-studenttaskmanager-dev-authRole",
+      "UnauthRoleName": "amplify-studenttaskmanager-dev-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::ACCOUNT:role/amplify-studenttaskmanager-dev-authRole",
+      "UnauthRoleArn": "arn:aws:iam::ACCOUNT:role/amplify-studenttaskmanager-dev-unauthRole",
+      "DeploymentBucketName": "amplify-studenttaskmanager-dev-deployment",
+      "Region": "us-east-1",
+      "StackName": "amplify-studenttaskmanager-dev",
+      "StackId": "arn:aws:cloudformation:us-east-1:ACCOUNT:stack/amplify-studenttaskmanager-dev/uuid"
+    },
+    "categories": {
+      "auth": {
+        "studenttaskmanager": {}
+      },
+      "storage": {
+        "taskattachments": {}
+      },
+      "function": {
+        "taskprocessor": {}
+      }
+    }
+  }
+}

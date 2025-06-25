@@ -1,0 +1,75 @@
+{
+  "auth": {
+    "studenttaskmanager": {
+      "service": "Cognito",
+      "providerPlugin": "@aws-amplify/amplify-category-auth",
+      "dependsOn": [],
+      "customAuth": false,
+      "frontendAuthConfig": {
+        "socialProviders": [],
+        "usernameAttributes": ["EMAIL"],
+        "signupAttributes": ["EMAIL", "NAME"],
+        "passwordProtectionSettings": {
+          "passwordPolicyMinLength": 8,
+          "passwordPolicyCharacters": []
+        },
+        "mfaConfiguration": "OFF",
+        "mfaTypes": ["SMS"],
+        "verificationMechanisms": ["EMAIL"]
+      }
+    }
+  },
+  "api": {
+    "studenttaskmanager": {
+      "service": "AppSync",
+      "providerPlugin": "@aws-amplify/amplify-category-api",
+      "dependsOn": [
+        {
+          "category": "auth",
+          "resourceName": "studenttaskmanager",
+          "attributes": ["UserPoolId"]
+        }
+      ]
+    }
+  },
+  "storage": {
+    "taskattachments": {
+      "service": "S3",
+      "providerPlugin": "@aws-amplify/amplify-category-storage",
+      "dependsOn": [
+        {
+          "category": "auth",
+          "resourceName": "studenttaskmanager",
+          "attributes": ["UserPoolId"]
+        }
+      ]
+    }
+  },
+  "function": {
+    "taskprocessor": {
+      "service": "Lambda",
+      "providerPlugin": "@aws-amplify/amplify-category-function",
+      "build": true,
+      "dependsOn": [
+        {
+          "category": "auth",
+          "resourceName": "studenttaskmanager",
+          "attributes": ["UserPoolId"]
+        }
+      ]
+    }
+  },
+  "analytics": {
+    "studenttaskmanager": {
+      "service": "Pinpoint",
+      "providerPlugin": "@aws-amplify/amplify-category-analytics",
+      "dependsOn": [
+        {
+          "category": "auth",
+          "resourceName": "studenttaskmanager",
+          "attributes": ["UserPoolId"]
+        }
+      ]
+    }
+  }
+}

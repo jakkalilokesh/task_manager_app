@@ -1,0 +1,141 @@
+type Task @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  title: String!
+  description: String
+  subject: String!
+  priority: Priority!
+  status: Status!
+  dueDate: AWSDateTime!
+  attachments: [Attachment] @hasMany(indexName: "byTask", fields: ["id"])
+  reminders: [Reminder] @hasMany(indexName: "byTask", fields: ["id"])
+  tags: [String]
+  estimatedHours: Float
+  actualHours: Float
+  completedAt: AWSDateTime
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  owner: String @auth(rules: [{ allow: owner, operations: [read, delete] }])
+}
+
+type Attachment @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  taskID: ID! @index(name: "byTask")
+  fileName: String!
+  fileSize: Int!
+  fileType: String!
+  fileKey: String!
+  uploadedAt: AWSDateTime!
+  task: Task @belongsTo(fields: ["taskID"])
+  owner: String @auth(rules: [{ allow: owner, operations: [read, delete] }])
+}
+
+type Reminder @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  taskID: ID! @index(name: "byTask")
+  reminderDate: AWSDateTime!
+  reminderType: ReminderType!
+  message: String
+  sent: Boolean!
+  task: Task @belongsTo(fields: ["taskID"])
+  owner: String @auth(rules: [{ allow: owner, operations: [read, delete] }])
+}
+
+type UserProfile @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  email: String!
+  name: String!
+  avatar: String
+  timezone: String
+  preferences: UserPreferences
+  statistics: UserStatistics
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  owner: String @auth(rules: [{ allow: owner, operations: [read, delete] }])
+}
+
+type UserPreferences {
+  theme: String
+  notifications: NotificationSettings
+  defaultReminder: Int
+  workingHours: WorkingHours
+}
+
+type NotificationSettings {
+  email: Boolean
+  push: Boolean
+  sms: Boolean
+  weeklyDigest: Boolean
+}
+
+type WorkingHours {
+  start: String
+  end: String
+  timezone: String
+}
+
+type UserStatistics {
+  totalTasks: Int
+  completedTasks: Int
+  overdueTasks: Int
+  averageCompletionTime: Float
+  productivityScore: Float
+}
+
+type StudySession @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  taskID: ID @index(name: "byTask")
+  subject: String!
+  startTime: AWSDateTime!
+  endTime: AWSDateTime
+  duration: Int
+  notes: String
+  productivity: Int
+  task: Task @belongsTo(fields: ["taskID"])
+  owner: String @auth(rules: [{ allow: owner, operations: [read, delete] }])
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum Status {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  ON_HOLD
+}
+
+enum ReminderType {
+  EMAIL
+  PUSH
+  SMS
+  IN_APP
+}
+
+type Query {
+  getTasksByDueDate(owner: String!, dueDate: AWSDateTime!): [Task] @auth(rules: [{ allow: owner }])
+  getOverdueTasks(owner: String!): [Task] @auth(rules: [{ allow: owner }])
+  getTasksBySubject(owner: String!, subject: String!): [Task] @auth(rules: [{ allow: owner }])
+  getUserAnalytics(owner: String!): UserStatistics @auth(rules: [{ allow: owner }])
+}
+
+type Mutation {
+  sendTaskReminder(taskId: ID!): String @auth(rules: [{ allow: owner }])
+  generateTaskReport(startDate: AWSDateTime!, endDate: AWSDateTime!): String @auth(rules: [{ allow: owner }])
+  bulkUpdateTasks(taskIds: [ID!]!, updates: TaskUpdateInput!): [Task] @auth(rules: [{ allow: owner }])
+}
+
+input TaskUpdateInput {
+  status: Status
+  priority: Priority
+  dueDate: AWSDateTime
+}
+
+type Subscription {
+  onTaskDue(owner: String!): Task @aws_subscribe(mutations: ["createTask", "updateTask"]) @auth(rules: [{ allow: owner }])
+  onReminderSent(owner: String!): Reminder @aws_subscribe(mutations: ["createReminder", "updateReminder"]) @auth(rules: [{ allow: owner }])
+}
